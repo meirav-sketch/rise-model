@@ -1,0 +1,2039 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>מארז הכלים שלי — RISE Model</title>
+<style>
+/* ── RESET & BASE ── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { font-size: 15px; }
+body {
+  font-family: 'Segoe UI', Arial, sans-serif;
+  background: #f0f4f8;
+  color: #1a1a1a;
+  min-height: 100vh;
+  direction: rtl;
+}
+
+/* ── MODULE COLORS ── */
+:root {
+  --blue:        #1e5799;
+  --blue-light:  #deeaf1;
+  --blue-soft:   #f0f6fb;
+  --blue-mid:    #2e75b6;
+  --orange:      #c55a11;
+  --orange-light:#fce4d6;
+  --orange-soft: #fff0e8;
+  --green:       #375623;
+  --green-light: #e2efda;
+  --green-soft:  #f2f9ee;
+  --purple:      #7030a0;
+  --purple-light:#ede0f5;
+  --purple-soft: #f8f2fc;
+  --teal:        #006B6B;
+  --teal-light:  #d0eeee;
+  --teal-soft:   #eef8f8;
+  --teal-mid:    #008080;
+  --primary:     #1f4e79;
+  --primary-mid: #2e5f9a;
+  --gray-border: #d0d7e0;
+  --gray-bg:     #f5f7fa;
+  --gray-mid:    #8a9ab0;
+  --text:        #1a1a1a;
+  --text-mid:    #445566;
+}
+
+/* ── LAYOUT ── */
+.app-shell { display: flex; min-height: 100vh; }
+
+/* SIDEBAR */
+.sidebar {
+  width: 240px;
+  flex-shrink: 0;
+  background: #fff;
+  border-left: 1px solid var(--gray-border);
+  display: flex;
+  flex-direction: column;
+  position: fixed;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  overflow-y: auto;
+  z-index: 100;
+}
+.sidebar-header {
+  padding: 20px 16px 14px;
+  border-bottom: 1px solid var(--gray-border);
+}
+.sidebar-logo {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--primary);
+  margin-bottom: 4px;
+}
+.sidebar-sub {
+  font-size: 11px;
+  color: var(--gray-mid);
+}
+.sidebar-name-section {
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--gray-border);
+}
+.sidebar-name-label {
+  font-size: 11px;
+  color: var(--gray-mid);
+  margin-bottom: 4px;
+}
+#user-name-input {
+  width: 100%;
+  border: 1px solid var(--gray-border);
+  border-radius: 6px;
+  padding: 6px 8px;
+  font-size: 13px;
+  color: var(--text);
+  direction: rtl;
+  outline: none;
+  background: var(--gray-bg);
+}
+#user-name-input:focus { border-color: var(--blue-mid); background: #fff; }
+
+.module-section { padding: 10px 0; }
+.module-label {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  color: var(--gray-mid);
+  padding: 4px 16px;
+  text-transform: uppercase;
+}
+.tool-btn {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 8px 16px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  text-align: right;
+  transition: background 0.12s;
+  position: relative;
+}
+.tool-btn:hover { background: var(--gray-bg); }
+.tool-btn.active { background: var(--blue-soft); }
+.tool-btn.active .tool-num { background: var(--blue); color: #fff; }
+.tool-num {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  font-size: 11px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  background: var(--gray-border);
+  color: var(--text-mid);
+  transition: background 0.12s, color 0.12s;
+}
+.tool-btn-text { font-size: 12.5px; color: var(--text-mid); line-height: 1.3; }
+.tool-btn.active .tool-btn-text { color: var(--blue); font-weight: 600; }
+.tool-done-mark {
+  position: absolute;
+  left: 12px;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: #2ea86b;
+  display: none;
+  align-items: center;
+  justify-content: center;
+}
+.tool-done-mark svg { width: 9px; height: 9px; }
+.tool-btn.done .tool-done-mark { display: flex; }
+
+/* Color theming per module */
+.tool-btn[data-module="blue"].active { background: var(--blue-soft); }
+.tool-btn[data-module="blue"].active .tool-num { background: var(--blue); }
+.tool-btn[data-module="blue"].active .tool-btn-text { color: var(--blue); }
+.tool-btn[data-module="orange"].active { background: var(--orange-soft); }
+.tool-btn[data-module="orange"].active .tool-num { background: var(--orange); }
+.tool-btn[data-module="orange"].active .tool-btn-text { color: var(--orange); }
+.tool-btn[data-module="green"].active { background: var(--green-soft); }
+.tool-btn[data-module="green"].active .tool-num { background: var(--green); }
+.tool-btn[data-module="green"].active .tool-btn-text { color: var(--green); }
+.tool-btn[data-module="purple"].active { background: var(--purple-soft); }
+.tool-btn[data-module="purple"].active .tool-num { background: var(--purple); }
+.tool-btn[data-module="purple"].active .tool-btn-text { color: var(--purple); }
+.tool-btn[data-module="teal"].active { background: var(--teal-soft); }
+.tool-btn[data-module="teal"].active .tool-num { background: var(--teal); }
+.tool-btn[data-module="teal"].active .tool-btn-text { color: var(--teal); }
+
+.sidebar-footer {
+  margin-top: auto;
+  padding: 14px 16px;
+  border-top: 1px solid var(--gray-border);
+}
+.progress-bar-wrap { height: 6px; background: var(--gray-border); border-radius: 3px; overflow: hidden; margin-bottom: 6px; }
+.progress-bar-fill { height: 100%; background: var(--blue); border-radius: 3px; transition: width 0.3s; }
+.progress-label { font-size: 11px; color: var(--gray-mid); }
+.print-btn {
+  margin-top: 10px;
+  width: 100%;
+  padding: 7px;
+  border: 1px solid var(--gray-border);
+  border-radius: 6px;
+  background: none;
+  cursor: pointer;
+  font-size: 12px;
+  color: var(--text-mid);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+.print-btn:hover { background: var(--gray-bg); }
+
+/* MAIN CONTENT */
+.main {
+  margin-right: 240px;
+  flex: 1;
+  padding: 32px 32px 80px;
+  max-width: 820px;
+}
+
+/* TOP BAR */
+.topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 28px;
+}
+.topbar-module {
+  font-size: 12px;
+  font-weight: 600;
+  padding: 4px 12px;
+  border-radius: 20px;
+}
+
+/* TOOL CARD */
+.tool-card {
+  background: #fff;
+  border-radius: 14px;
+  border: 1px solid var(--gray-border);
+  overflow: hidden;
+  margin-bottom: 20px;
+}
+.tool-header {
+  display: flex;
+  align-items: stretch;
+  border-bottom: 1px solid var(--gray-border);
+}
+.tool-header-badge {
+  width: 70px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  padding: 16px 0;
+}
+.tool-header-badge .badge-kli { font-size: 11px; color: #fff; opacity: 0.85; }
+.tool-header-badge .badge-num { font-size: 36px; font-weight: 700; color: #fff; line-height: 1; }
+.tool-header-info { padding: 16px 18px; flex: 1; }
+.tool-header-title { font-size: 20px; font-weight: 700; margin-bottom: 3px; }
+.tool-header-en { font-size: 12px; opacity: 0.75; font-style: italic; }
+.tool-body { padding: 22px 24px; }
+
+/* PURPOSE BOX */
+.purpose-box {
+  border-radius: 8px;
+  padding: 12px 16px;
+  margin-bottom: 22px;
+  font-size: 13.5px;
+  line-height: 1.6;
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+}
+.purpose-icon { font-size: 18px; flex-shrink: 0; margin-top: 1px; }
+
+/* FORM ELEMENTS */
+.field-group { margin-bottom: 20px; }
+.field-label {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text);
+  margin-bottom: 6px;
+  display: block;
+}
+.field-hint {
+  font-size: 12px;
+  color: var(--gray-mid);
+  margin-bottom: 6px;
+}
+textarea, input[type="text"], input[type="date"] {
+  width: 100%;
+  border: 1px solid var(--gray-border);
+  border-radius: 8px;
+  padding: 10px 12px;
+  font-size: 13.5px;
+  font-family: inherit;
+  direction: rtl;
+  color: var(--text);
+  background: var(--gray-bg);
+  resize: vertical;
+  outline: none;
+  transition: border-color 0.15s, background 0.15s;
+  line-height: 1.6;
+}
+textarea:focus, input[type="text"]:focus, input[type="date"]:focus {
+  border-color: var(--blue-mid);
+  background: #fff;
+}
+textarea.sm { min-height: 64px; }
+textarea.md { min-height: 100px; }
+textarea.lg { min-height: 140px; }
+textarea.xl { min-height: 180px; }
+
+/* SECTION DIVIDER */
+.section-divider {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--primary);
+  padding: 14px 0 6px;
+  border-bottom: 2px solid var(--gray-border);
+  margin-bottom: 16px;
+}
+
+/* TWO COLUMNS */
+.two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+
+/* RATING TABLE */
+.rating-table { width: 100%; border-collapse: collapse; margin-bottom: 4px; }
+.rating-table th {
+  font-size: 11px;
+  color: var(--gray-mid);
+  font-weight: 600;
+  padding: 6px 8px;
+  text-align: center;
+}
+.rating-table th:first-child { text-align: right; }
+.rating-table td {
+  padding: 6px 8px;
+  border-top: 1px solid var(--gray-border);
+  font-size: 13px;
+  color: var(--text);
+}
+.rating-table td:first-child { text-align: right; }
+.rating-table td:not(:first-child) { text-align: center; }
+.rating-table tr:nth-child(even) td { background: var(--gray-bg); }
+.radio-circle {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  border: 2px solid var(--gray-border);
+  display: inline-block;
+  cursor: pointer;
+  transition: all 0.12s;
+  vertical-align: middle;
+}
+.radio-circle.selected { background: var(--blue); border-color: var(--blue); }
+
+/* STRENGTHS TABLE */
+.strengths-table { width: 100%; border-collapse: collapse; }
+.strengths-table th {
+  background: var(--blue);
+  color: #fff;
+  font-size: 12px;
+  padding: 8px 10px;
+  text-align: right;
+  font-weight: 600;
+}
+.strengths-table td {
+  border: 1px solid var(--gray-border);
+  padding: 2px;
+  vertical-align: top;
+}
+.strengths-table td textarea { border: none; border-radius: 0; background: transparent; padding: 8px; }
+.strengths-table td textarea:focus { background: #fffdf0; }
+
+/* VALUES CHIPS */
+.values-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+.value-chip {
+  padding: 5px 14px;
+  border-radius: 20px;
+  border: 1.5px solid var(--gray-border);
+  font-size: 12.5px;
+  cursor: pointer;
+  color: var(--text-mid);
+  transition: all 0.12s;
+  user-select: none;
+}
+.value-chip:hover { border-color: var(--blue-mid); color: var(--blue); }
+.value-chip.selected { background: var(--blue); border-color: var(--blue); color: #fff; font-weight: 600; }
+
+/* TEMPLATE BOX */
+.template-box {
+  border-radius: 8px;
+  padding: 18px 20px;
+  margin: 14px 0;
+  border-right: 4px solid;
+  line-height: 2;
+  font-size: 14px;
+}
+.template-inline {
+  display: inline-block;
+  min-width: 140px;
+  border-bottom: 2px solid;
+  padding: 0 6px;
+  outline: none;
+  color: var(--text);
+  font-size: 14px;
+  font-family: inherit;
+}
+
+/* TIMELINE TABLE */
+.timeline-table { width: 100%; border-collapse: collapse; }
+.timeline-table th {
+  font-size: 12px;
+  padding: 8px 10px;
+  text-align: right;
+  font-weight: 700;
+  color: #fff;
+}
+.timeline-table td {
+  border: 1px solid var(--gray-border);
+  padding: 2px;
+  vertical-align: top;
+}
+.timeline-table td.period-cell {
+  font-size: 12px;
+  font-weight: 700;
+  text-align: center;
+  vertical-align: middle;
+  padding: 8px;
+  width: 100px;
+}
+.timeline-table td textarea {
+  border: none;
+  border-radius: 0;
+  background: transparent;
+  padding: 8px;
+  min-height: 70px;
+}
+.timeline-table td textarea:focus { background: #fffdf0; }
+
+/* SCENARIOS TABLE */
+.scenarios-table { width: 100%; border-collapse: collapse; }
+.scenarios-table th {
+  font-size: 12px;
+  padding: 8px 10px;
+  font-weight: 700;
+  color: #fff;
+  text-align: right;
+}
+.scenarios-table td {
+  border: 1px solid var(--gray-border);
+  padding: 2px;
+  vertical-align: top;
+}
+.scenarios-table .scenario-text {
+  font-size: 12.5px;
+  padding: 10px;
+  color: var(--purple);
+  font-style: italic;
+  vertical-align: middle;
+}
+.scenarios-table td textarea {
+  border: none; border-radius: 0; background: transparent; padding: 8px; min-height: 70px;
+}
+.scenarios-table td textarea:focus { background: #fffdf0; }
+
+/* OPPORTUNITIES TABLE */
+.opp-table { width: 100%; border-collapse: collapse; }
+.opp-table th {
+  font-size: 12px;
+  padding: 8px 10px;
+  font-weight: 700;
+  color: #fff;
+  text-align: right;
+}
+.opp-table td { border: 1px solid var(--gray-border); padding: 2px; vertical-align: top; }
+.opp-table td.opp-rating { text-align: center; width: 80px; }
+.opp-table td.opp-rating select {
+  border: none; background: transparent; font-size: 16px; cursor: pointer; outline: none; width: 100%; padding: 8px 4px;
+}
+.opp-table td textarea { border: none; border-radius: 0; background: transparent; padding: 8px; min-height: 60px; }
+.opp-table td textarea:focus { background: #fffdf0; }
+
+/* GOAL TABLE */
+.goal-table { width: 100%; border-collapse: collapse; }
+.goal-table td { border: 1px solid var(--gray-border); padding: 0; vertical-align: top; }
+.goal-table .goal-label {
+  font-size: 12.5px;
+  font-weight: 700;
+  padding: 12px;
+  width: 150px;
+  vertical-align: middle;
+}
+.goal-table .goal-hint { font-size: 11px; font-weight: 400; color: var(--gray-mid); display: block; }
+.goal-table textarea { border: none; border-radius: 0; background: transparent; padding: 10px; min-height: 60px; }
+.goal-table textarea:focus { background: #fffdf0; }
+.goal-table tr:nth-child(odd) .goal-label { background: var(--orange-soft); }
+.goal-table tr:nth-child(even) .goal-label { background: var(--orange-light); }
+
+/* GOAL SUMMARY */
+.goal-summary {
+  background: var(--orange-soft);
+  border-right: 4px solid var(--orange);
+  border-radius: 0 8px 8px 0;
+  padding: 16px 20px;
+  margin-top: 16px;
+  font-size: 14px;
+  line-height: 2;
+}
+
+/* REFLECTION Q */
+.reflection-q {
+  font-size: 13px;
+  color: var(--text-mid);
+  padding: 6px 0 4px;
+  display: flex;
+  gap: 8px;
+  align-items: flex-start;
+}
+.q-diamond { color: var(--purple); font-size: 10px; margin-top: 4px; flex-shrink: 0; }
+
+/* SUPPORT TABLE */
+.support-table { width: 100%; border-collapse: collapse; }
+.support-table th {
+  font-size: 12px; padding: 8px 10px; font-weight: 700; color: #fff; text-align: right;
+  background: var(--purple);
+}
+.support-table td { border: 1px solid var(--gray-border); padding: 2px; vertical-align: top; }
+.support-table td textarea { border: none; border-radius: 0; background: transparent; padding: 8px; min-height: 55px; }
+.support-table td textarea:focus { background: #fffdf0; }
+
+/* REVIEW TABLE */
+.review-assess { width: 100%; border-collapse: collapse; }
+.review-assess th { font-size: 12px; padding: 8px; font-weight: 700; color: #fff; background: var(--purple); }
+.review-assess td { border: 1px solid var(--gray-border); padding: 8px; text-align: center; font-size: 13px; }
+.review-assess td:first-child { text-align: right; }
+.review-assess tr:nth-child(even) td { background: var(--purple-soft); }
+.rating-dot { width: 20px; height: 20px; border-radius: 50%; border: 2px solid var(--gray-border); display: inline-block; cursor: pointer; transition: all 0.12s; vertical-align: middle; }
+.rating-dot.selected { background: var(--purple); border-color: var(--purple); }
+
+/* NAVIGATION FOOTER */
+.nav-footer {
+  position: fixed;
+  bottom: 0;
+  right: 240px;
+  left: 0;
+  background: #fff;
+  border-top: 1px solid var(--gray-border);
+  padding: 12px 32px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  z-index: 50;
+}
+.nav-btn {
+  padding: 9px 22px;
+  border-radius: 8px;
+  border: 1px solid var(--gray-border);
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  transition: all 0.12s;
+}
+.nav-btn-prev { background: #fff; color: var(--text-mid); }
+.nav-btn-prev:hover { background: var(--gray-bg); }
+.nav-btn-next { background: var(--blue); color: #fff; border-color: var(--blue); }
+.nav-btn-next:hover { background: #1a4a70; }
+.nav-btn:disabled { opacity: 0.35; cursor: default; }
+.save-indicator {
+  font-size: 12px;
+  color: #2ea86b;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+.save-indicator.visible { opacity: 1; }
+
+/* TOOL VISIBILITY */
+.tool-page { display: none; }
+.tool-page.active { display: block; }
+
+/* PRINT */
+@media print {
+  .sidebar, .nav-footer, .print-btn { display: none !important; }
+  .main { margin-right: 0; padding: 20px; }
+  .tool-page { display: block !important; page-break-after: always; }
+}
+
+/* SCROLLBAR */
+::-webkit-scrollbar { width: 5px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--gray-border); border-radius: 3px; }
+
+/* ══ TOOL 10 — SKILLS GAP MODULE ══ */
+.skill-row {
+  background: var(--gray-bg);
+  border: 1px solid var(--gray-border);
+  border-radius: 10px;
+  padding: 14px 16px;
+  margin-bottom: 12px;
+}
+.skill-row-name { margin-bottom: 10px; }
+.skill-row-name input { background: #fff; }
+.skill-ratings-wrap {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+.skill-rating-block { display: flex; flex-direction: column; gap: 5px; }
+.skill-rating-lbl {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--gray-mid);
+  letter-spacing: 0.03em;
+}
+.skill-rating-lbl.cur { color: var(--purple); }
+.skill-rating-lbl.need { color: #c0392b; }
+.skill-circles { display: flex; gap: 7px; align-items: center; }
+.skill-circles .radio-circle { width: 24px; height: 24px; font-size: 11px; border-radius: 50%; border: 2px solid var(--gray-border); display: inline-flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.12s; color: var(--gray-mid); font-weight: 700; }
+.skill-circles .radio-circle.cur-radio.selected { background: var(--purple); border-color: var(--purple); color: #fff; }
+.skill-circles .radio-circle.need-radio.selected { background: #c0392b; border-color: #c0392b; color: #fff; }
+.skill-circles .radio-circle:not(.cur-radio):not(.need-radio).selected { background: var(--blue); border-color: var(--blue); color: #fff; }
+
+/* Gap Bar */
+.gap-bar-section { margin-top: 2px; }
+.gap-bar-track {
+  width: 100%;
+  height: 14px;
+  background: #e0e7ef;
+  border-radius: 7px;
+  position: relative;
+  overflow: hidden;
+}
+.gap-bar-cur-fill {
+  position: absolute;
+  top: 0; right: 0;
+  height: 100%;
+  background: var(--purple);
+  border-radius: 7px;
+  transition: width 0.35s;
+  width: 0%;
+}
+.gap-bar-need-fill {
+  position: absolute;
+  top: 0; right: 0;
+  height: 100%;
+  background: rgba(192,57,43,0.18);
+  border-radius: 7px;
+  transition: width 0.35s;
+  width: 0%;
+}
+.gap-bar-meta {
+  display: flex;
+  justify-content: space-between;
+  font-size: 10px;
+  color: var(--gray-mid);
+  margin-top: 3px;
+}
+.gap-bar-meta .gap-tag { font-weight: 700; font-size: 11px; }
+.gap-tag.ok { color: #2ea86b; }
+.gap-tag.gap { color: #c0392b; }
+.gap-tag.empty { color: var(--gray-mid); }
+
+/* Station Cards */
+.stations-wrap { display: flex; flex-direction: column; gap: 14px; margin-top: 4px; }
+.station-card {
+  border: 2px solid var(--teal-light);
+  border-radius: 10px;
+  overflow: hidden;
+}
+.station-header {
+  background: var(--teal);
+  color: #fff;
+  font-size: 13px;
+  font-weight: 700;
+  padding: 8px 16px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.station-num-badge {
+  background: rgba(255,255,255,0.25);
+  border-radius: 50%;
+  width: 22px;
+  height: 22px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+}
+.station-body { padding: 14px 16px; background: var(--teal-soft); }
+.station-body .field-group:last-child { margin-bottom: 0; }
+
+/* Gap Legend */
+.gap-legend {
+  display: flex;
+  gap: 16px;
+  font-size: 11px;
+  color: var(--gray-mid);
+  margin-bottom: 12px;
+  flex-wrap: wrap;
+}
+.gap-legend-item { display: flex; align-items: center; gap: 5px; }
+.legend-dot { width: 12px; height: 12px; border-radius: 3px; flex-shrink: 0; }
+</style>
+</head>
+<body>
+
+<div class="app-shell">
+
+<!-- ══ SIDEBAR ══ -->
+<aside class="sidebar">
+  <div class="sidebar-header">
+    <div class="sidebar-logo">מארז הכלים שלי</div>
+    <div class="sidebar-sub">RISE Model</div>
+  </div>
+  <div class="sidebar-name-section">
+    <div class="sidebar-name-label">שמי:</div>
+    <input type="text" id="user-name-input" placeholder="כתוב/י שמך כאן..." autocomplete="off">
+  </div>
+
+  <!-- Module: REFLECT on Yourself -->
+  <div class="module-section">
+    <div class="module-label" style="color:var(--blue)">■ REFLECT on Yourself — מי אני?</div>
+    <button class="tool-btn active" data-module="blue" data-tool="1" onclick="goTo(1)">
+      <span class="tool-num">1</span>
+      <span class="tool-btn-text">נקודת המוצא שלי</span>
+      <span class="tool-done-mark"><svg viewBox="0 0 10 10" fill="none"><path d="M2 5l2.5 2.5L8 3" stroke="#fff" stroke-width="1.5" stroke-linecap="round"/></svg></span>
+    </button>
+    <button class="tool-btn" data-module="blue" data-tool="2" onclick="goTo(2)">
+      <span class="tool-num">2</span>
+      <span class="tool-btn-text">מפת החוזקות שלי</span>
+      <span class="tool-done-mark"><svg viewBox="0 0 10 10" fill="none"><path d="M2 5l2.5 2.5L8 3" stroke="#fff" stroke-width="1.5" stroke-linecap="round"/></svg></span>
+    </button>
+  </div>
+
+  <!-- Module: INTEND Your Direction -->
+  <div class="module-section" style="border-top:1px solid var(--gray-border)">
+    <div class="module-label" style="color:var(--orange)">■ INTEND Your Direction — לאן אני שואף?</div>
+    <button class="tool-btn" data-module="orange" data-tool="3" onclick="goTo(3)">
+      <span class="tool-num">3</span>
+      <span class="tool-btn-text">חזון ההצלחה שלי</span>
+      <span class="tool-done-mark"><svg viewBox="0 0 10 10" fill="none"><path d="M2 5l2.5 2.5L8 3" stroke="#fff" stroke-width="1.5" stroke-linecap="round"/></svg></span>
+    </button>
+    <button class="tool-btn" data-module="orange" data-tool="4" onclick="goTo(4)">
+      <span class="tool-num">4</span>
+      <span class="tool-btn-text">מטרת הפיתוח שלי</span>
+      <span class="tool-done-mark"><svg viewBox="0 0 10 10" fill="none"><path d="M2 5l2.5 2.5L8 3" stroke="#fff" stroke-width="1.5" stroke-linecap="round"/></svg></span>
+    </button>
+  </div>
+
+  <!-- Module: SCAN the Landscape -->
+  <div class="module-section" style="border-top:1px solid var(--gray-border)">
+    <div class="module-label" style="color:var(--green)">■ SCAN the Landscape — מה הארגון צריך?</div>
+    <button class="tool-btn" data-module="green" data-tool="5" onclick="goTo(5)">
+      <span class="tool-num">5</span>
+      <span class="tool-btn-text">מיפוי הצרכים</span>
+      <span class="tool-done-mark"><svg viewBox="0 0 10 10" fill="none"><path d="M2 5l2.5 2.5L8 3" stroke="#fff" stroke-width="1.5" stroke-linecap="round"/></svg></span>
+    </button>
+    <button class="tool-btn" data-module="green" data-tool="6" onclick="goTo(6)">
+      <span class="tool-num">6</span>
+      <span class="tool-btn-text">הצהרת הערך שלי</span>
+      <span class="tool-done-mark"><svg viewBox="0 0 10 10" fill="none"><path d="M2 5l2.5 2.5L8 3" stroke="#fff" stroke-width="1.5" stroke-linecap="round"/></svg></span>
+    </button>
+  </div>
+
+  <!-- Module: ENACT Your Path -->
+  <div class="module-section" style="border-top:1px solid var(--gray-border)">
+    <div class="module-label" style="color:var(--purple)">■ ENACT Your Path — איך אני מתקדם?</div>
+    <button class="tool-btn" data-module="purple" data-tool="7" onclick="goTo(7)">
+      <span class="tool-num">7</span>
+      <span class="tool-btn-text">הכנה לשיחת הפיתוח</span>
+      <span class="tool-done-mark"><svg viewBox="0 0 10 10" fill="none"><path d="M2 5l2.5 2.5L8 3" stroke="#fff" stroke-width="1.5" stroke-linecap="round"/></svg></span>
+    </button>
+    <button class="tool-btn" data-module="purple" data-tool="8" onclick="goTo(8)">
+      <span class="tool-num">8</span>
+      <span class="tool-btn-text">אבני הדרך שלי</span>
+      <span class="tool-done-mark"><svg viewBox="0 0 10 10" fill="none"><path d="M2 5l2.5 2.5L8 3" stroke="#fff" stroke-width="1.5" stroke-linecap="round"/></svg></span>
+    </button>
+    <button class="tool-btn" data-module="purple" data-tool="9" onclick="goTo(9)">
+      <span class="tool-num">9</span>
+      <span class="tool-btn-text">סקירת ההתקדמות</span>
+      <span class="tool-done-mark"><svg viewBox="0 0 10 10" fill="none"><path d="M2 5l2.5 2.5L8 3" stroke="#fff" stroke-width="1.5" stroke-linecap="round"/></svg></span>
+    </button>
+    <button class="tool-btn" data-module="purple" data-tool="10" onclick="goTo(10)">
+      <span class="tool-num">10</span>
+      <span class="tool-btn-text">כישורים לפיתוח</span>
+      <span class="tool-done-mark"><svg viewBox="0 0 10 10" fill="none"><path d="M2 5l2.5 2.5L8 3" stroke="#fff" stroke-width="1.5" stroke-linecap="round"/></svg></span>
+    </button>
+  </div>
+
+  <div class="sidebar-footer">
+    <div class="progress-bar-wrap">
+      <div class="progress-bar-fill" id="progress-fill" style="width:0%"></div>
+    </div>
+    <div class="progress-label" id="progress-label">0 מתוך 10 כלים הושלמו</div>
+    <button class="print-btn" onclick="window.print()">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9V2h12v7M6 18H4a2 2 0 01-2-2v-5a2 2 0 012-2h16a2 2 0 012 2v5a2 2 0 01-2 2h-2M6 14h12v8H6z"/></svg>
+      הדפס / ייצא
+    </button>
+  </div>
+</aside>
+
+<!-- ══ MAIN ══ -->
+<main class="main">
+
+<!-- ════ TOOL 1 ════ -->
+<div class="tool-page active" id="tool-1">
+  <div class="tool-card">
+    <div class="tool-header">
+      <div class="tool-header-badge" style="background:var(--blue)">
+        <span class="badge-kli">כלי</span>
+        <span class="badge-num">1</span>
+      </div>
+      <div class="tool-header-info">
+        <div class="tool-header-title" style="color:var(--blue)">נקודת המוצא שלי</div>
+        <div class="tool-header-en" style="color:var(--blue)">REFLECT on Yourself · Career Platform</div>
+      </div>
+    </div>
+    <div class="tool-body">
+      <div class="purpose-box" style="background:var(--blue-light);color:var(--blue)">
+        <span class="purpose-icon">🎯</span>
+        <span>לפני שצוללים קדימה — בואו נסתכל אחורה. כלי זה עוזר לך להגיע לסדנה עם תמונה ברורה של המצב הנוכחי.</span>
+      </div>
+
+      <div class="field-group">
+        <label class="field-label">בתפקידי הנוכחי, אני עוסק/ת ב...</label>
+        <textarea class="md" id="t1_role" placeholder="תאר/י את עיקרי תפקידך ומה אתה/את עושה ביום-יום..."></textarea>
+      </div>
+
+      <div class="field-group">
+        <label class="field-label">ההישג שאני הכי גאה/ה בו בשנה האחרונה:</label>
+        <textarea class="sm" id="t1_achievement" placeholder="מה עשית/ה שגרם לך להרגיש 'הנה, זה אני'?"></textarea>
+      </div>
+
+      <div class="section-divider" style="border-color:var(--blue-light)">עד כמה אני מרוצה/ה? (לחץ/י לבחור 1–5)</div>
+
+      <table class="rating-table">
+        <thead>
+          <tr>
+            <th>תחום</th>
+            <th>1</th><th>2</th><th>3</th><th>4</th><th>5</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td>התוכן והאחריות בתפקיד</td>
+            <td><span class="radio-circle" data-group="t1_r1" data-val="1"></span></td>
+            <td><span class="radio-circle" data-group="t1_r1" data-val="2"></span></td>
+            <td><span class="radio-circle" data-group="t1_r1" data-val="3"></span></td>
+            <td><span class="radio-circle" data-group="t1_r1" data-val="4"></span></td>
+            <td><span class="radio-circle" data-group="t1_r1" data-val="5"></span></td>
+          </tr>
+          <tr><td>הזדמנויות ללמידה וצמיחה</td>
+            <td><span class="radio-circle" data-group="t1_r2" data-val="1"></span></td>
+            <td><span class="radio-circle" data-group="t1_r2" data-val="2"></span></td>
+            <td><span class="radio-circle" data-group="t1_r2" data-val="3"></span></td>
+            <td><span class="radio-circle" data-group="t1_r2" data-val="4"></span></td>
+            <td><span class="radio-circle" data-group="t1_r2" data-val="5"></span></td>
+          </tr>
+          <tr><td>הכרה והוקרה</td>
+            <td><span class="radio-circle" data-group="t1_r3" data-val="1"></span></td>
+            <td><span class="radio-circle" data-group="t1_r3" data-val="2"></span></td>
+            <td><span class="radio-circle" data-group="t1_r3" data-val="3"></span></td>
+            <td><span class="radio-circle" data-group="t1_r3" data-val="4"></span></td>
+            <td><span class="radio-circle" data-group="t1_r3" data-val="5"></span></td>
+          </tr>
+          <tr><td>מסלול הקריירה שלי</td>
+            <td><span class="radio-circle" data-group="t1_r4" data-val="1"></span></td>
+            <td><span class="radio-circle" data-group="t1_r4" data-val="2"></span></td>
+            <td><span class="radio-circle" data-group="t1_r4" data-val="3"></span></td>
+            <td><span class="radio-circle" data-group="t1_r4" data-val="4"></span></td>
+            <td><span class="radio-circle" data-group="t1_r4" data-val="5"></span></td>
+          </tr>
+          <tr><td>מערכת היחסים עם המנהל/ת שלי</td>
+            <td><span class="radio-circle" data-group="t1_r5" data-val="1"></span></td>
+            <td><span class="radio-circle" data-group="t1_r5" data-val="2"></span></td>
+            <td><span class="radio-circle" data-group="t1_r5" data-val="3"></span></td>
+            <td><span class="radio-circle" data-group="t1_r5" data-val="4"></span></td>
+            <td><span class="radio-circle" data-group="t1_r5" data-val="5"></span></td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="field-group" style="margin-top:20px">
+        <label class="field-label">מה הייתי רוצה שיהיה שונה לאחר שיחת הפיתוח?</label>
+        <textarea class="md" id="t1_wish" placeholder="כתוב/י בחופשיות — זו נקודת המוצא שלך..."></textarea>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ════ TOOL 2 ════ -->
+<div class="tool-page" id="tool-2">
+  <div class="tool-card">
+    <div class="tool-header">
+      <div class="tool-header-badge" style="background:var(--blue)">
+        <span class="badge-kli">כלי</span><span class="badge-num">2</span>
+      </div>
+      <div class="tool-header-info">
+        <div class="tool-header-title" style="color:var(--blue)">מפת החוזקות שלי</div>
+        <div class="tool-header-en" style="color:var(--blue)">REFLECT on Yourself · Strengths Map</div>
+      </div>
+    </div>
+    <div class="tool-body">
+      <div class="purpose-box" style="background:var(--blue-light);color:var(--blue)">
+        <span class="purpose-icon">💪</span>
+        <span>חוזקות אמיתיות הן לא רק דברים שאתה/את עושה טוב — הן דברים שגם נותנים לך אנרגיה. כאן נמפה את שניהם.</span>
+      </div>
+
+      <div class="section-divider" style="border-color:var(--blue-light)">שלב 1 — הרגעים הטובים שלי</div>
+      <div class="field-hint">חשוב/י על 3 רגעים בעבודה שבהם הרגשת/י שאתה/את בפסגה שלך. מה עשית? מה הרגשת?</div>
+
+      <table class="strengths-table" style="margin:12px 0">
+        <thead>
+          <tr>
+            <th style="background:var(--blue)">מה עשיתי?</th>
+            <th style="background:var(--blue)">למה הייתי טוב/ה בזה?</th>
+            <th style="background:var(--blue)">מה זה אומר עלי?</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><textarea class="sm" id="t2_m1a" placeholder="רגע ראשון..."></textarea></td>
+            <td><textarea class="sm" id="t2_m1b" placeholder="..."></textarea></td>
+            <td><textarea class="sm" id="t2_m1c" placeholder="..."></textarea></td>
+          </tr>
+          <tr>
+            <td><textarea class="sm" id="t2_m2a" placeholder="רגע שני..."></textarea></td>
+            <td><textarea class="sm" id="t2_m2b" placeholder="..."></textarea></td>
+            <td><textarea class="sm" id="t2_m2c" placeholder="..."></textarea></td>
+          </tr>
+          <tr>
+            <td><textarea class="sm" id="t2_m3a" placeholder="רגע שלישי..."></textarea></td>
+            <td><textarea class="sm" id="t2_m3b" placeholder="..."></textarea></td>
+            <td><textarea class="sm" id="t2_m3c" placeholder="..."></textarea></td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="section-divider" style="border-color:var(--blue-light)">שלב 2 — החוזקות שלי</div>
+      <div class="two-col" style="margin-bottom:16px">
+        <div>
+          <label class="field-label">חוזקות שאני מזהה/ה בעצמי</label>
+          <textarea class="md" id="t2_str_self" placeholder="למשל: פתרון בעיות, תקשורת ברורה, חשיבה מערכתית..."></textarea>
+        </div>
+        <div>
+          <label class="field-label">חוזקות שאחרים הכירו בהן</label>
+          <textarea class="md" id="t2_str_others" placeholder="מה אחרים אמרו עלייך? מה ביקשו ממך לעשות?"></textarea>
+        </div>
+      </div>
+
+      <div class="section-divider" style="border-color:var(--blue-light)">שלב 3 — הערכים שמנחים אותי (לחץ/י לבחור עד 5)</div>
+      <div class="values-grid" id="values-grid">
+        <span class="value-chip" data-val="יושרה">יושרה</span>
+        <span class="value-chip" data-val="חדשנות">חדשנות</span>
+        <span class="value-chip" data-val="שייכות">שייכות</span>
+        <span class="value-chip" data-val="מצוינות">מצוינות</span>
+        <span class="value-chip" data-val="השפעה">השפעה</span>
+        <span class="value-chip" data-val="למידה">למידה</span>
+        <span class="value-chip" data-val="אוטונומיה">אוטונומיה</span>
+        <span class="value-chip" data-val="שיתוף פעולה">שיתוף פעולה</span>
+        <span class="value-chip" data-val="אמינות">אמינות</span>
+        <span class="value-chip" data-val="סקרנות">סקרנות</span>
+        <span class="value-chip" data-val="יצירתיות">יצירתיות</span>
+        <span class="value-chip" data-val="הוגנות">הוגנות</span>
+        <span class="value-chip" data-val="מנהיגות">מנהיגות</span>
+        <span class="value-chip" data-val="שקיפות">שקיפות</span>
+        <span class="value-chip" data-val="ערך ייחודי">ערך ייחודי</span>
+      </div>
+      <div class="field-group">
+        <label class="field-label">ערכים שהוספתי:</label>
+        <input type="text" id="t2_values_extra" placeholder="הוסף/י ערכים נוספים שלא ברשימה...">
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ════ TOOL 3 ════ -->
+<div class="tool-page" id="tool-3">
+  <div class="tool-card">
+    <div class="tool-header">
+      <div class="tool-header-badge" style="background:var(--orange)">
+        <span class="badge-kli">כלי</span><span class="badge-num">3</span>
+      </div>
+      <div class="tool-header-info">
+        <div class="tool-header-title" style="color:var(--orange)">חזון ההצלחה שלי</div>
+        <div class="tool-header-en" style="color:var(--orange)">INTEND Your Direction · Future Success Vision</div>
+      </div>
+    </div>
+    <div class="tool-body">
+      <div class="purpose-box" style="background:var(--orange-light);color:var(--orange)">
+        <span class="purpose-icon">🌅</span>
+        <span>לפני שמגדירים מטרה — צריך לדעת לאן רוצים ללכת. כלי זה עוזר לך לצייר את התמונה הגדולה.</span>
+      </div>
+
+      <div class="field-group">
+        <label class="field-label">תרגיל: "השנה הטובה ביותר שלי"</label>
+        <div class="field-hint">דמיין/י שחלפה שנה, ואתה/את מסתכל/ת אחורה על השנה המקצועית הטובה ביותר שלך. תאר/י אותה: מה עשית/ה? עם מי? מה הרגשת? מה הצלחת? — כתוב/י בגוף ראשון, זמן הווה.</div>
+        <textarea class="xl" id="t3_vision" placeholder="אני מגיע/ה לעבודה כל בוקר עם תחושה של..."></textarea>
+      </div>
+
+      <div class="section-divider" style="border-color:var(--orange-light)">מהנרטיב — 3 נקודות מרכזיות</div>
+      <div class="field-group">
+        <div class="field-hint">מה הכי חשוב לך מתוך מה שכתבת?</div>
+        <textarea class="sm" id="t3_key1" placeholder="נקודה 1:"></textarea>
+        <textarea class="sm" id="t3_key2" placeholder="נקודה 2:" style="margin-top:8px"></textarea>
+        <textarea class="sm" id="t3_key3" placeholder="נקודה 3:" style="margin-top:8px"></textarea>
+      </div>
+
+      <div class="two-col">
+        <div>
+          <label class="field-label">בעוד שנה אצליח ב...</label>
+          <textarea class="md" id="t3_succeed" placeholder="..."></textarea>
+        </div>
+        <div>
+          <label class="field-label">בעוד שנה אפסיק / אפחית...</label>
+          <textarea class="md" id="t3_stop" placeholder="..."></textarea>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ════ TOOL 4 ════ -->
+<div class="tool-page" id="tool-4">
+  <div class="tool-card">
+    <div class="tool-header">
+      <div class="tool-header-badge" style="background:var(--orange)">
+        <span class="badge-kli">כלי</span><span class="badge-num">4</span>
+      </div>
+      <div class="tool-header-info">
+        <div class="tool-header-title" style="color:var(--orange)">מטרת הפיתוח שלי</div>
+        <div class="tool-header-en" style="color:var(--orange)">INTEND Your Direction · My Growth Goal</div>
+      </div>
+    </div>
+    <div class="tool-body">
+      <div class="purpose-box" style="background:var(--orange-light);color:var(--orange)">
+        <span class="purpose-icon">🎯</span>
+        <span>מטרה טובה אינה עוד משאלה — היא ספציפית, מדידה, ומחוברת למה שרוצים להשיג.</span>
+      </div>
+
+      <table class="goal-table" style="margin-bottom:16px">
+        <tr>
+          <td class="goal-label" style="background:var(--orange-soft)">מה המטרה שלי?<span class="goal-hint">בביטוי אחד ברור</span></td>
+          <td><textarea id="t4_what" placeholder="..."></textarea></td>
+        </tr>
+        <tr>
+          <td class="goal-label" style="background:var(--orange-light)">למה זה חשוב לי?<span class="goal-hint">מה יהיה שונה?</span></td>
+          <td><textarea id="t4_why" placeholder="..."></textarea></td>
+        </tr>
+        <tr>
+          <td class="goal-label" style="background:var(--orange-soft)">עד מתי?<span class="goal-hint">מסגרת זמן ריאלית</span></td>
+          <td><textarea id="t4_when" placeholder="..."></textarea></td>
+        </tr>
+        <tr>
+          <td class="goal-label" style="background:var(--orange-light)">איך אדע שהצלחתי?<span class="goal-hint">מה יהיה הסימן?</span></td>
+          <td><textarea id="t4_know" placeholder="..."></textarea></td>
+        </tr>
+        <tr>
+          <td class="goal-label" style="background:var(--orange-soft)">הצעד הראשון שלי<span class="goal-hint">פעולה קטנה השבוע</span></td>
+          <td><textarea id="t4_first" placeholder="..."></textarea></td>
+        </tr>
+      </table>
+
+      <div class="section-divider" style="border-color:var(--orange-light)">ניסוח המטרה בשלמותה</div>
+      <div class="goal-summary">
+        <span style="font-weight:700;color:var(--orange)">המטרה שלי: </span>
+        אני רוצה
+        <span class="template-inline" id="t4_sum_what" contenteditable="true" style="border-color:var(--orange);min-width:160px" data-placeholder="מה?"></span>
+        עד
+        <span class="template-inline" id="t4_sum_when" contenteditable="true" style="border-color:var(--orange);min-width:100px" data-placeholder="מתי?"></span>
+        כדי ש
+        <span class="template-inline" id="t4_sum_why" contenteditable="true" style="border-color:var(--orange);min-width:160px" data-placeholder="תוצאה..."></span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ════ TOOL 5 ════ -->
+<div class="tool-page" id="tool-5">
+  <div class="tool-card">
+    <div class="tool-header">
+      <div class="tool-header-badge" style="background:var(--green)">
+        <span class="badge-kli">כלי</span><span class="badge-num">5</span>
+      </div>
+      <div class="tool-header-info">
+        <div class="tool-header-title" style="color:var(--green)">מיפוי הצרכים</div>
+        <div class="tool-header-en" style="color:var(--green)">SCAN the Landscape · Needs Mapping</div>
+      </div>
+    </div>
+    <div class="tool-body">
+      <div class="purpose-box" style="background:var(--green-light);color:var(--green)">
+        <span class="purpose-icon">🔭</span>
+        <span>שיחת פיתוח אפקטיבית לא נוגעת רק בך — היא מתחשבת גם במה שהארגון צריך. כאן תמפה/י את הצרכים שאתה/את כבר עונה עליהם — ואת המקומות שבהם אפשר להעמיק.</span>
+      </div>
+
+      <div class="section-divider" style="border-color:var(--green-light)">שאלות לחקירה לפני השיחה</div>
+      <div style="margin-bottom:16px">
+        <div class="reflection-q"><span class="q-diamond" style="color:var(--green)">◆</span> מה הארגון / הצוות / המנהל/ת עסוק/ה בו עכשיו? אילו בעיות, אתגרים או צרכים עולים שוב ושוב?</div>
+        <div class="reflection-q"><span class="q-diamond" style="color:var(--green)">◆</span> איפה אני כבר עונה על צורך — ויכול/ה להעמיק, להרחיב, או להוביל יותר?</div>
+        <div class="reflection-q"><span class="q-diamond" style="color:var(--green)">◆</span> איפה יש פערים שאף אחד לא מטפל בהם — ואני יכול/ה להביא לשם ערך ייחודי?</div>
+      </div>
+
+      <table class="opp-table" style="margin-bottom:16px">
+        <thead>
+          <tr>
+            <th style="background:var(--green)">צורך ארגוני שזיהיתי</th>
+            <th style="background:var(--green);width:90px;text-align:center">רלוונטיות (1–5)</th>
+            <th style="background:var(--green)">מה אני כבר מביא/ה — ואיך אפשר להעמיק?</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><textarea id="t5_o1a" placeholder="..."></textarea></td>
+            <td class="opp-rating"><select id="t5_o1b"><option value="">—</option><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option></select></td>
+            <td><textarea id="t5_o1c" placeholder="..."></textarea></td>
+          </tr>
+          <tr>
+            <td><textarea id="t5_o2a" placeholder="..."></textarea></td>
+            <td class="opp-rating"><select id="t5_o2b"><option value="">—</option><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option></select></td>
+            <td><textarea id="t5_o2c" placeholder="..."></textarea></td>
+          </tr>
+          <tr>
+            <td><textarea id="t5_o3a" placeholder="..."></textarea></td>
+            <td class="opp-rating"><select id="t5_o3b"><option value="">—</option><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option></select></td>
+            <td><textarea id="t5_o3c" placeholder="..."></textarea></td>
+          </tr>
+          <tr>
+            <td><textarea id="t5_o4a" placeholder="..."></textarea></td>
+            <td class="opp-rating"><select id="t5_o4b"><option value="">—</option><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option></select></td>
+            <td><textarea id="t5_o4c" placeholder="..."></textarea></td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="field-group">
+        <label class="field-label">הצורך שאני יכול/ה לתת לו מענה הכי משמעותי — ולמה:</label>
+        <textarea class="md" id="t5_top" placeholder="..."></textarea>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ════ TOOL 6 ════ -->
+<div class="tool-page" id="tool-6">
+  <div class="tool-card">
+    <div class="tool-header">
+      <div class="tool-header-badge" style="background:var(--green)">
+        <span class="badge-kli">כלי</span><span class="badge-num">6</span>
+      </div>
+      <div class="tool-header-info">
+        <div class="tool-header-title" style="color:var(--green)">הצהרת הערך שלי</div>
+        <div class="tool-header-en" style="color:var(--green)">REFLECT + SCAN · My Unique Value</div>
+      </div>
+    </div>
+    <div class="tool-body">
+      <div class="purpose-box" style="background:var(--green-light);color:var(--green)">
+        <span class="purpose-icon">💎</span>
+        <span>צומת "ערך" הוא המקום שבו מי שאתה/את פוגש/ת את מה שהארגון צריך. הצהרת ערך טובה אינה שיווק עצמי — היא הצגת אמת.</span>
+      </div>
+
+      <div class="section-divider" style="border-color:var(--green-light)">שלב 1 — איסוף חומרי גלם</div>
+      <div class="two-col" style="margin-bottom:16px">
+        <div>
+          <label class="field-label">החוזקות הייחודיות שלי (מכלי 2)</label>
+          <textarea class="md" id="t6_strengths" placeholder="..."></textarea>
+        </div>
+        <div>
+          <label class="field-label">מה הארגון צריך (מכלי 5)</label>
+          <textarea class="md" id="t6_org_need" placeholder="..."></textarea>
+        </div>
+      </div>
+
+      <div class="section-divider" style="border-color:var(--green-light)">שלב 2 — בניית ההצהרה</div>
+      <div class="template-box" style="background:var(--green-soft);border-color:var(--green)">
+        <div style="margin-bottom:8px">
+          <span style="color:var(--text-mid)">אני </span>
+          <span class="template-inline" id="t6_role" contenteditable="true" style="border-color:var(--green);min-width:140px" data-placeholder="תפקיד / תחום"></span>
+        </div>
+        <div style="margin-bottom:8px">
+          <span style="color:var(--text-mid)">המביא/ה </span>
+          <span class="template-inline" id="t6_strength" contenteditable="true" style="border-color:var(--green);min-width:180px" data-placeholder="חוזקה ייחודית"></span>
+        </div>
+        <div style="margin-bottom:8px">
+          <span style="color:var(--text-mid)">לארגון שצריך </span>
+          <span class="template-inline" id="t6_need" contenteditable="true" style="border-color:var(--green);min-width:160px" data-placeholder="צורך ארגוני"></span>
+        </div>
+        <div>
+          <span style="color:var(--text-mid)">כדי ש</span>
+          <span class="template-inline" id="t6_impact" contenteditable="true" style="border-color:var(--green);min-width:180px" data-placeholder="השפעה / תוצאה"></span>
+        </div>
+      </div>
+
+      <div class="field-group" style="margin-top:16px">
+        <label class="field-label">הגרסה שלי — במשפט אחד:</label>
+        <textarea class="sm" id="t6_final" placeholder="כתוב/י בצורה שתרגיש נכון לך לאמר בשיחה..."></textarea>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ════ TOOL 7 ════ -->
+<div class="tool-page" id="tool-7">
+  <div class="tool-card">
+    <div class="tool-header">
+      <div class="tool-header-badge" style="background:var(--purple)">
+        <span class="badge-kli">כלי</span><span class="badge-num">7</span>
+      </div>
+      <div class="tool-header-info">
+        <div class="tool-header-title" style="color:var(--purple)">הכנה לשיחת הפיתוח</div>
+        <div class="tool-header-en" style="color:var(--purple)">ENACT Your Path · Conversation Prep Sheet</div>
+      </div>
+    </div>
+    <div class="tool-body">
+      <div class="purpose-box" style="background:var(--purple-light);color:var(--purple)">
+        <span class="purpose-icon">🗣️</span>
+        <span>כלי זה הוא הלב של המארז — מרכז את כל מה שהכנת/ה לכדי שיחה מוכנה, בטוחה ואפקטיבית.</span>
+      </div>
+
+      <div class="field-group">
+        <label class="field-label">א. פתיחה — איך אני פותח/ת את השיחה?</label>
+        <div class="field-hint">כתוב/י את משפטי הפתיחה שלך — מה אתה/את אומר/ת בדקה הראשונה:</div>
+        <textarea class="md" id="t7_open" placeholder='למשל: "רציתי שנשוחח על תהליך הפיתוח שלי. הכנתי כמה נקודות שחשוב לי לשתף..."'></textarea>
+      </div>
+
+      <div class="section-divider" style="border-color:var(--purple-light)">ב. שלוש הנקודות שאני רוצה להעביר</div>
+      <textarea class="sm" id="t7_p1" placeholder="נקודה 1:" style="margin-bottom:8px"></textarea>
+      <textarea class="sm" id="t7_p2" placeholder="נקודה 2:" style="margin-bottom:8px"></textarea>
+      <textarea class="sm" id="t7_p3" placeholder="נקודה 3:" style="margin-bottom:16px"></textarea>
+
+      <div class="field-group">
+        <label class="field-label">ג. הבקשה שלי — מה אני מבקש/ת?</label>
+        <div class="field-hint">כתוב/י בצורה ספציפית ומוחשית — לא "לגדול בתפקיד" אלא מה בדיוק:</div>
+        <textarea class="md" id="t7_ask" placeholder="אני מבקש/ת..."></textarea>
+      </div>
+
+      <div class="section-divider" style="border-color:var(--purple-light)">ד. תרחישים — מה אם המנהל/ת יגיד/תגיד...?</div>
+      <table class="scenarios-table">
+        <thead>
+          <tr>
+            <th style="background:var(--purple);width:45%">מה המנהל/ת עלול/ה לאמר</th>
+            <th style="background:var(--purple)">התגובה שלי</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="scenario-text">"עכשיו זה לא הזמן הנכון"</td>
+            <td><textarea id="t7_s1" placeholder="..."></textarea></td>
+          </tr>
+          <tr>
+            <td class="scenario-text">"צריך להוכיח יותר קודם"</td>
+            <td><textarea id="t7_s2" placeholder="..."></textarea></td>
+          </tr>
+          <tr>
+            <td class="scenario-text">"נחשוב יחד אחרי הרבעון"</td>
+            <td><textarea id="t7_s3" placeholder="..."></textarea></td>
+          </tr>
+          <tr>
+            <td class="scenario-text">תרחיש אחר שאני צופה/ה:</td>
+            <td><textarea id="t7_s4" placeholder="..."></textarea></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- ════ TOOL 8 ════ -->
+<div class="tool-page" id="tool-8">
+  <div class="tool-card">
+    <div class="tool-header">
+      <div class="tool-header-badge" style="background:var(--purple)">
+        <span class="badge-kli">כלי</span><span class="badge-num">8</span>
+      </div>
+      <div class="tool-header-info">
+        <div class="tool-header-title" style="color:var(--purple)">אבני הדרך שלי</div>
+        <div class="tool-header-en" style="color:var(--purple)">ENACT Your Path · My Milestones</div>
+      </div>
+    </div>
+    <div class="tool-body">
+      <div class="purpose-box" style="background:var(--purple-light);color:var(--purple)">
+        <span class="purpose-icon">🗺️</span>
+        <span>מטרה בלי פעולה היא חלום. כלי זה עוזר לפרק את המטרה לצעדים קטנים וברורים.</span>
+      </div>
+
+      <div class="field-group">
+        <label class="field-label">המטרה שלי (מכלי 4):</label>
+        <textarea class="sm" id="t8_goal_ref" placeholder="העתק/י כאן את המטרה מכלי 4..."></textarea>
+      </div>
+
+      <div class="section-divider" style="border-color:var(--purple-light)">תכנית 90 יום</div>
+      <table class="timeline-table">
+        <thead>
+          <tr>
+            <th style="background:var(--purple);width:100px;text-align:center">טווח זמן</th>
+            <th style="background:var(--purple)">מה אני עושה?</th>
+            <th style="background:var(--purple)">סימן להצלחה</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="period-cell" style="color:var(--purple);background:var(--purple-soft)">השבוע הקרוב</td>
+            <td><textarea id="t8_w1a" placeholder="..."></textarea></td>
+            <td><textarea id="t8_w1b" placeholder="..."></textarea></td>
+          </tr>
+          <tr>
+            <td class="period-cell" style="color:var(--purple);background:var(--purple-light)">תוך שבועיים</td>
+            <td><textarea id="t8_w2a" placeholder="..."></textarea></td>
+            <td><textarea id="t8_w2b" placeholder="..."></textarea></td>
+          </tr>
+          <tr>
+            <td class="period-cell" style="color:var(--purple);background:var(--purple-soft)">תוך חודש</td>
+            <td><textarea id="t8_m1a" placeholder="..."></textarea></td>
+            <td><textarea id="t8_m1b" placeholder="..."></textarea></td>
+          </tr>
+          <tr>
+            <td class="period-cell" style="color:var(--purple);background:var(--purple-light)">תוך 3 חודשים</td>
+            <td><textarea id="t8_m3a" placeholder="..."></textarea></td>
+            <td><textarea id="t8_m3b" placeholder="..."></textarea></td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="section-divider" style="border-color:var(--purple-light);margin-top:16px">מי יכול/ה לתמוך בי?</div>
+      <table class="support-table">
+        <thead>
+          <tr>
+            <th>מי?</th>
+            <th>איך הוא/היא יכול/ה לעזור?</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><textarea id="t8_sup1a" placeholder="שם..." style="min-height:45px"></textarea></td>
+            <td><textarea id="t8_sup1b" placeholder="..." style="min-height:45px"></textarea></td>
+          </tr>
+          <tr>
+            <td><textarea id="t8_sup2a" placeholder="שם..." style="min-height:45px"></textarea></td>
+            <td><textarea id="t8_sup2b" placeholder="..." style="min-height:45px"></textarea></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- ════ TOOL 9 ════ -->
+<div class="tool-page" id="tool-9">
+  <div class="tool-card">
+    <div class="tool-header">
+      <div class="tool-header-badge" style="background:var(--purple)">
+        <span class="badge-kli">כלי</span><span class="badge-num">9</span>
+      </div>
+      <div class="tool-header-info">
+        <div class="tool-header-title" style="color:var(--purple)">סקירת ההתקדמות שלי</div>
+        <div class="tool-header-en" style="color:var(--purple)">ENACT Your Path · Progress Review</div>
+      </div>
+    </div>
+    <div class="tool-body">
+      <div class="purpose-box" style="background:var(--purple-light);color:var(--purple)">
+        <span class="purpose-icon">📈</span>
+        <span>כלי זה מיועד לאחר שיחת הפיתוח — כדי לעקוב אחרי ההתקדמות ולשמר את המומנטום. מומלץ למלא אחת לחודש.</span>
+      </div>
+
+      <div class="field-group">
+        <label class="field-label">תאריך הסקירה:</label>
+        <input type="date" id="t9_date" style="max-width:200px">
+      </div>
+
+      <div class="section-divider" style="border-color:var(--purple-light)">שאלות לסקירה</div>
+      <div class="field-group">
+        <div class="reflection-q"><span class="q-diamond">◆</span> מה התחייבתי לעשות?</div>
+        <textarea class="sm" id="t9_committed" placeholder="..."></textarea>
+      </div>
+      <div class="field-group">
+        <div class="reflection-q"><span class="q-diamond">◆</span> מה עשיתי בפועל?</div>
+        <textarea class="sm" id="t9_did" placeholder="..."></textarea>
+      </div>
+      <div class="field-group">
+        <div class="reflection-q"><span class="q-diamond">◆</span> מה עבד?</div>
+        <textarea class="sm" id="t9_worked" placeholder="..."></textarea>
+      </div>
+      <div class="field-group">
+        <div class="reflection-q"><span class="q-diamond">◆</span> מה לא עבד — ולמה?</div>
+        <textarea class="sm" id="t9_notworked" placeholder="..."></textarea>
+      </div>
+      <div class="field-group">
+        <div class="reflection-q"><span class="q-diamond">◆</span> מה למדתי על עצמי?</div>
+        <textarea class="sm" id="t9_learned" placeholder="..."></textarea>
+      </div>
+      <div class="field-group">
+        <div class="reflection-q"><span class="q-diamond">◆</span> מה הצעד הבא שלי?</div>
+        <textarea class="sm" id="t9_next" placeholder="..."></textarea>
+      </div>
+
+      <div class="section-divider" style="border-color:var(--purple-light)">הערכה עצמית (לחץ/י לבחור)</div>
+      <table class="review-assess">
+        <thead>
+          <tr>
+            <th style="text-align:right">תחום</th>
+            <th>1</th><th>2</th><th>3</th><th>4</th><th>5</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td>ביצעתי את מה שהתחייבתי</td>
+            <td><span class="rating-dot" data-group="t9_a1" data-val="1"></span></td>
+            <td><span class="rating-dot" data-group="t9_a1" data-val="2"></span></td>
+            <td><span class="rating-dot" data-group="t9_a1" data-val="3"></span></td>
+            <td><span class="rating-dot" data-group="t9_a1" data-val="4"></span></td>
+            <td><span class="rating-dot" data-group="t9_a1" data-val="5"></span></td>
+          </tr>
+          <tr><td>התקדמתי לעבר המטרה</td>
+            <td><span class="rating-dot" data-group="t9_a2" data-val="1"></span></td>
+            <td><span class="rating-dot" data-group="t9_a2" data-val="2"></span></td>
+            <td><span class="rating-dot" data-group="t9_a2" data-val="3"></span></td>
+            <td><span class="rating-dot" data-group="t9_a2" data-val="4"></span></td>
+            <td><span class="rating-dot" data-group="t9_a2" data-val="5"></span></td>
+          </tr>
+          <tr><td>ניהלתי שיחות פיתוח נוספות</td>
+            <td><span class="rating-dot" data-group="t9_a3" data-val="1"></span></td>
+            <td><span class="rating-dot" data-group="t9_a3" data-val="2"></span></td>
+            <td><span class="rating-dot" data-group="t9_a3" data-val="3"></span></td>
+            <td><span class="rating-dot" data-group="t9_a3" data-val="4"></span></td>
+            <td><span class="rating-dot" data-group="t9_a3" data-val="5"></span></td>
+          </tr>
+          <tr><td>הרגשתי ביטחון בתהליך</td>
+            <td><span class="rating-dot" data-group="t9_a4" data-val="1"></span></td>
+            <td><span class="rating-dot" data-group="t9_a4" data-val="2"></span></td>
+            <td><span class="rating-dot" data-group="t9_a4" data-val="3"></span></td>
+            <td><span class="rating-dot" data-group="t9_a4" data-val="4"></span></td>
+            <td><span class="rating-dot" data-group="t9_a4" data-val="5"></span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- ════ TOOL 10 ════ -->
+<div class="tool-page" id="tool-10">
+  <div class="tool-card">
+    <div class="tool-header">
+      <div class="tool-header-badge" style="background:var(--purple)">
+        <span class="badge-kli">כלי</span><span class="badge-num">10</span>
+      </div>
+      <div class="tool-header-info">
+        <div class="tool-header-title" style="color:var(--purple)">כישורים לפיתוח — לקראת השיחה</div>
+        <div class="tool-header-en" style="color:var(--purple)">ENACT Your Path · Skills for the Conversation</div>
+      </div>
+    </div>
+    <div class="tool-body">
+      <div class="purpose-box" style="background:var(--purple-light);color:var(--purple)">
+        <span class="purpose-icon">🎯</span>
+        <span>לפני שיחת הפיתוח — מפה את הכישורים שתרצה לפתח, זהה את הפערים, ובנה תכנית שתביא לשיחה. כך השיחה תהיה ממוקדת, מבוססת נתונים, ותוביל להסכמות פרקטיות.</span>
+      </div>
+
+      <!-- SECTION 1: TARGET ROLE -->
+      <div class="section-divider" style="border-color:var(--purple-light);color:var(--purple)">שלב א׳ — תפקיד היעד</div>
+
+      <div class="field-group">
+        <label class="field-label">התפקיד שאני שואף/ת אליו:</label>
+        <input type="text" id="t10_target_role" placeholder="למשל: מנהל/ת צוות, מנהל/ת מוצר, ראש מחלקה...">
+      </div>
+      <div class="field-group">
+        <label class="field-label">מה מושך אותי לתפקיד הזה?</label>
+        <textarea class="sm" id="t10_target_why" placeholder="מה בתפקיד הזה מדליק אותי? מה הערך שאביא לו?"></textarea>
+      </div>
+      <div class="field-group">
+        <label class="field-label">מה ההיגיון הארגוני — למה הארגון יצטרך אותי שם?</label>
+        <textarea class="sm" id="t10_target_org" placeholder="באיזו בעיה ארגונית אפתור? מה הצורך שאמלא?"></textarea>
+      </div>
+
+      <!-- SECTION 2: SKILLS MAP -->
+      <div class="section-divider" style="border-color:var(--purple-light);color:var(--purple)">שלב ב׳ — מפת הכישורים</div>
+      <p style="font-size:13px;color:var(--text-mid);margin-bottom:14px;">עבור כל כישור נדרש לתפקיד — דרג/י את הרמה הנוכחית שלך ואת הרמה הנדרשת (1 = מתחיל, 5 = מומחה). מפת הפערים תיווצר אוטומטית.</p>
+
+      <div class="gap-legend">
+        <div class="gap-legend-item"><div class="legend-dot" style="background:var(--purple)"></div><span>רמה נוכחית</span></div>
+        <div class="gap-legend-item"><div class="legend-dot" style="background:rgba(192,57,43,0.3)"></div><span>רמה נדרשת</span></div>
+        <div class="gap-legend-item"><div class="legend-dot" style="background:#2ea86b"></div><span>עמדת ביעד ✓</span></div>
+      </div>
+
+      <!-- Skill Row Template (×6) -->
+      <div id="skills-container">
+
+      <div class="skill-row">
+        <div class="skill-row-name">
+          <input type="text" id="t10_s1_name" placeholder="כישור 1 — למשל: חשיבה אסטרטגית">
+        </div>
+        <div class="skill-ratings-wrap">
+          <div class="skill-rating-block">
+            <div class="skill-rating-lbl cur">רמה נוכחית שלי</div>
+            <div class="skill-circles">
+              <span class="radio-circle cur-radio" data-group="t10_s1_cur" data-val="1">1</span>
+              <span class="radio-circle cur-radio" data-group="t10_s1_cur" data-val="2">2</span>
+              <span class="radio-circle cur-radio" data-group="t10_s1_cur" data-val="3">3</span>
+              <span class="radio-circle cur-radio" data-group="t10_s1_cur" data-val="4">4</span>
+              <span class="radio-circle cur-radio" data-group="t10_s1_cur" data-val="5">5</span>
+            </div>
+          </div>
+          <div class="skill-rating-block">
+            <div class="skill-rating-lbl need">רמה נדרשת לתפקיד</div>
+            <div class="skill-circles">
+              <span class="radio-circle need-radio" data-group="t10_s1_need" data-val="1">1</span>
+              <span class="radio-circle need-radio" data-group="t10_s1_need" data-val="2">2</span>
+              <span class="radio-circle need-radio" data-group="t10_s1_need" data-val="3">3</span>
+              <span class="radio-circle need-radio" data-group="t10_s1_need" data-val="4">4</span>
+              <span class="radio-circle need-radio" data-group="t10_s1_need" data-val="5">5</span>
+            </div>
+          </div>
+        </div>
+        <div class="gap-bar-section">
+          <div class="gap-bar-track">
+            <div class="gap-bar-need-fill" id="gap-need-1" style="width:0%"></div>
+            <div class="gap-bar-cur-fill" id="gap-fill-1" style="width:0%"></div>
+          </div>
+          <div class="gap-bar-meta"><span>1</span><span id="gap-tag-1" class="gap-tag empty">—</span><span>5</span></div>
+        </div>
+      </div>
+
+      <div class="skill-row">
+        <div class="skill-row-name">
+          <input type="text" id="t10_s2_name" placeholder="כישור 2 — למשל: ניהול עובדים">
+        </div>
+        <div class="skill-ratings-wrap">
+          <div class="skill-rating-block">
+            <div class="skill-rating-lbl cur">רמה נוכחית שלי</div>
+            <div class="skill-circles">
+              <span class="radio-circle cur-radio" data-group="t10_s2_cur" data-val="1">1</span>
+              <span class="radio-circle cur-radio" data-group="t10_s2_cur" data-val="2">2</span>
+              <span class="radio-circle cur-radio" data-group="t10_s2_cur" data-val="3">3</span>
+              <span class="radio-circle cur-radio" data-group="t10_s2_cur" data-val="4">4</span>
+              <span class="radio-circle cur-radio" data-group="t10_s2_cur" data-val="5">5</span>
+            </div>
+          </div>
+          <div class="skill-rating-block">
+            <div class="skill-rating-lbl need">רמה נדרשת לתפקיד</div>
+            <div class="skill-circles">
+              <span class="radio-circle need-radio" data-group="t10_s2_need" data-val="1">1</span>
+              <span class="radio-circle need-radio" data-group="t10_s2_need" data-val="2">2</span>
+              <span class="radio-circle need-radio" data-group="t10_s2_need" data-val="3">3</span>
+              <span class="radio-circle need-radio" data-group="t10_s2_need" data-val="4">4</span>
+              <span class="radio-circle need-radio" data-group="t10_s2_need" data-val="5">5</span>
+            </div>
+          </div>
+        </div>
+        <div class="gap-bar-section">
+          <div class="gap-bar-track">
+            <div class="gap-bar-need-fill" id="gap-need-2" style="width:0%"></div>
+            <div class="gap-bar-cur-fill" id="gap-fill-2" style="width:0%"></div>
+          </div>
+          <div class="gap-bar-meta"><span>1</span><span id="gap-tag-2" class="gap-tag empty">—</span><span>5</span></div>
+        </div>
+      </div>
+
+      <div class="skill-row">
+        <div class="skill-row-name">
+          <input type="text" id="t10_s3_name" placeholder="כישור 3 — למשל: תקשורת עם בעלי עניין">
+        </div>
+        <div class="skill-ratings-wrap">
+          <div class="skill-rating-block">
+            <div class="skill-rating-lbl cur">רמה נוכחית שלי</div>
+            <div class="skill-circles">
+              <span class="radio-circle cur-radio" data-group="t10_s3_cur" data-val="1">1</span>
+              <span class="radio-circle cur-radio" data-group="t10_s3_cur" data-val="2">2</span>
+              <span class="radio-circle cur-radio" data-group="t10_s3_cur" data-val="3">3</span>
+              <span class="radio-circle cur-radio" data-group="t10_s3_cur" data-val="4">4</span>
+              <span class="radio-circle cur-radio" data-group="t10_s3_cur" data-val="5">5</span>
+            </div>
+          </div>
+          <div class="skill-rating-block">
+            <div class="skill-rating-lbl need">רמה נדרשת לתפקיד</div>
+            <div class="skill-circles">
+              <span class="radio-circle need-radio" data-group="t10_s3_need" data-val="1">1</span>
+              <span class="radio-circle need-radio" data-group="t10_s3_need" data-val="2">2</span>
+              <span class="radio-circle need-radio" data-group="t10_s3_need" data-val="3">3</span>
+              <span class="radio-circle need-radio" data-group="t10_s3_need" data-val="4">4</span>
+              <span class="radio-circle need-radio" data-group="t10_s3_need" data-val="5">5</span>
+            </div>
+          </div>
+        </div>
+        <div class="gap-bar-section">
+          <div class="gap-bar-track">
+            <div class="gap-bar-need-fill" id="gap-need-3" style="width:0%"></div>
+            <div class="gap-bar-cur-fill" id="gap-fill-3" style="width:0%"></div>
+          </div>
+          <div class="gap-bar-meta"><span>1</span><span id="gap-tag-3" class="gap-tag empty">—</span><span>5</span></div>
+        </div>
+      </div>
+
+      <div class="skill-row">
+        <div class="skill-row-name">
+          <input type="text" id="t10_s4_name" placeholder="כישור 4 — למשל: קבלת החלטות בלחץ">
+        </div>
+        <div class="skill-ratings-wrap">
+          <div class="skill-rating-block">
+            <div class="skill-rating-lbl cur">רמה נוכחית שלי</div>
+            <div class="skill-circles">
+              <span class="radio-circle cur-radio" data-group="t10_s4_cur" data-val="1">1</span>
+              <span class="radio-circle cur-radio" data-group="t10_s4_cur" data-val="2">2</span>
+              <span class="radio-circle cur-radio" data-group="t10_s4_cur" data-val="3">3</span>
+              <span class="radio-circle cur-radio" data-group="t10_s4_cur" data-val="4">4</span>
+              <span class="radio-circle cur-radio" data-group="t10_s4_cur" data-val="5">5</span>
+            </div>
+          </div>
+          <div class="skill-rating-block">
+            <div class="skill-rating-lbl need">רמה נדרשת לתפקיד</div>
+            <div class="skill-circles">
+              <span class="radio-circle need-radio" data-group="t10_s4_need" data-val="1">1</span>
+              <span class="radio-circle need-radio" data-group="t10_s4_need" data-val="2">2</span>
+              <span class="radio-circle need-radio" data-group="t10_s4_need" data-val="3">3</span>
+              <span class="radio-circle need-radio" data-group="t10_s4_need" data-val="4">4</span>
+              <span class="radio-circle need-radio" data-group="t10_s4_need" data-val="5">5</span>
+            </div>
+          </div>
+        </div>
+        <div class="gap-bar-section">
+          <div class="gap-bar-track">
+            <div class="gap-bar-need-fill" id="gap-need-4" style="width:0%"></div>
+            <div class="gap-bar-cur-fill" id="gap-fill-4" style="width:0%"></div>
+          </div>
+          <div class="gap-bar-meta"><span>1</span><span id="gap-tag-4" class="gap-tag empty">—</span><span>5</span></div>
+        </div>
+      </div>
+
+      <div class="skill-row">
+        <div class="skill-row-name">
+          <input type="text" id="t10_s5_name" placeholder="כישור 5 — למשל: עבודה בין-מחלקתית">
+        </div>
+        <div class="skill-ratings-wrap">
+          <div class="skill-rating-block">
+            <div class="skill-rating-lbl cur">רמה נוכחית שלי</div>
+            <div class="skill-circles">
+              <span class="radio-circle cur-radio" data-group="t10_s5_cur" data-val="1">1</span>
+              <span class="radio-circle cur-radio" data-group="t10_s5_cur" data-val="2">2</span>
+              <span class="radio-circle cur-radio" data-group="t10_s5_cur" data-val="3">3</span>
+              <span class="radio-circle cur-radio" data-group="t10_s5_cur" data-val="4">4</span>
+              <span class="radio-circle cur-radio" data-group="t10_s5_cur" data-val="5">5</span>
+            </div>
+          </div>
+          <div class="skill-rating-block">
+            <div class="skill-rating-lbl need">רמה נדרשת לתפקיד</div>
+            <div class="skill-circles">
+              <span class="radio-circle need-radio" data-group="t10_s5_need" data-val="1">1</span>
+              <span class="radio-circle need-radio" data-group="t10_s5_need" data-val="2">2</span>
+              <span class="radio-circle need-radio" data-group="t10_s5_need" data-val="3">3</span>
+              <span class="radio-circle need-radio" data-group="t10_s5_need" data-val="4">4</span>
+              <span class="radio-circle need-radio" data-group="t10_s5_need" data-val="5">5</span>
+            </div>
+          </div>
+        </div>
+        <div class="gap-bar-section">
+          <div class="gap-bar-track">
+            <div class="gap-bar-need-fill" id="gap-need-5" style="width:0%"></div>
+            <div class="gap-bar-cur-fill" id="gap-fill-5" style="width:0%"></div>
+          </div>
+          <div class="gap-bar-meta"><span>1</span><span id="gap-tag-5" class="gap-tag empty">—</span><span>5</span></div>
+        </div>
+      </div>
+
+      <div class="skill-row">
+        <div class="skill-row-name">
+          <input type="text" id="t10_s6_name" placeholder="כישור 6 — הוסף/י כישור נוסף">
+        </div>
+        <div class="skill-ratings-wrap">
+          <div class="skill-rating-block">
+            <div class="skill-rating-lbl cur">רמה נוכחית שלי</div>
+            <div class="skill-circles">
+              <span class="radio-circle cur-radio" data-group="t10_s6_cur" data-val="1">1</span>
+              <span class="radio-circle cur-radio" data-group="t10_s6_cur" data-val="2">2</span>
+              <span class="radio-circle cur-radio" data-group="t10_s6_cur" data-val="3">3</span>
+              <span class="radio-circle cur-radio" data-group="t10_s6_cur" data-val="4">4</span>
+              <span class="radio-circle cur-radio" data-group="t10_s6_cur" data-val="5">5</span>
+            </div>
+          </div>
+          <div class="skill-rating-block">
+            <div class="skill-rating-lbl need">רמה נדרשת לתפקיד</div>
+            <div class="skill-circles">
+              <span class="radio-circle need-radio" data-group="t10_s6_need" data-val="1">1</span>
+              <span class="radio-circle need-radio" data-group="t10_s6_need" data-val="2">2</span>
+              <span class="radio-circle need-radio" data-group="t10_s6_need" data-val="3">3</span>
+              <span class="radio-circle need-radio" data-group="t10_s6_need" data-val="4">4</span>
+              <span class="radio-circle need-radio" data-group="t10_s6_need" data-val="5">5</span>
+            </div>
+          </div>
+        </div>
+        <div class="gap-bar-section">
+          <div class="gap-bar-track">
+            <div class="gap-bar-need-fill" id="gap-need-6" style="width:0%"></div>
+            <div class="gap-bar-cur-fill" id="gap-fill-6" style="width:0%"></div>
+          </div>
+          <div class="gap-bar-meta"><span>1</span><span id="gap-tag-6" class="gap-tag empty">—</span><span>5</span></div>
+        </div>
+      </div>
+
+      </div><!-- /skills-container -->
+
+      <!-- SECTION 3: DEVELOPMENT STATIONS -->
+      <div class="section-divider" style="border-color:var(--purple-light);color:var(--purple)">שלב ג׳ — תכנית הפיתוח: תחנות המסלול</div>
+      <p style="font-size:13px;color:var(--text-mid);margin-bottom:14px;">בחר/י את 3 הפערים המשמעותיים ביותר ובנה/י עבור כל אחד תחנת פיתוח ממוקדת.</p>
+
+      <div class="stations-wrap">
+
+        <div class="station-card">
+          <div class="station-header">
+            <div class="station-num-badge">1</div>
+            תחנה ראשונה — הפיתוח הדחוף ביותר
+          </div>
+          <div class="station-body">
+            <div class="field-group">
+              <label class="field-label">הכישור שאפתח:</label>
+              <input type="text" id="t10_st1_skill" placeholder="איזה כישור מהרשימה למעלה הכי קריטי?">
+            </div>
+            <div class="field-group">
+              <label class="field-label">איך אני מתכנן/ת לפתח אותו:</label>
+              <textarea class="sm" id="t10_st1_how" placeholder="קורס? חונך? פרויקט? להתנדב לתפקיד זמני?"></textarea>
+            </div>
+            <div class="two-col">
+              <div class="field-group">
+                <label class="field-label">יעד — רמה שארצה להגיע:</label>
+                <input type="text" id="t10_st1_target" placeholder="למשל: מ-2 ל-4">
+              </div>
+              <div class="field-group">
+                <label class="field-label">תאריך יעד:</label>
+                <input type="date" id="t10_st1_date">
+              </div>
+            </div>
+            <div class="field-group" style="margin-bottom:0">
+              <label class="field-label">כך אדע שהצלחתי:</label>
+              <input type="text" id="t10_st1_measure" placeholder="מה יראה/ירגש אחרת? מה אוכל לעשות שכיום לא אוכל?">
+            </div>
+          </div>
+        </div>
+
+        <div class="station-card">
+          <div class="station-header">
+            <div class="station-num-badge">2</div>
+            תחנה שנייה — פיתוח לטווח הבינוני
+          </div>
+          <div class="station-body">
+            <div class="field-group">
+              <label class="field-label">הכישור שאפתח:</label>
+              <input type="text" id="t10_st2_skill" placeholder="כישור שני לפיתוח">
+            </div>
+            <div class="field-group">
+              <label class="field-label">איך אני מתכנן/ת לפתח אותו:</label>
+              <textarea class="sm" id="t10_st2_how" placeholder="מה הדרך שבחרת?"></textarea>
+            </div>
+            <div class="two-col">
+              <div class="field-group">
+                <label class="field-label">יעד — רמה שארצה להגיע:</label>
+                <input type="text" id="t10_st2_target" placeholder="למשל: מ-1 ל-3">
+              </div>
+              <div class="field-group">
+                <label class="field-label">תאריך יעד:</label>
+                <input type="date" id="t10_st2_date">
+              </div>
+            </div>
+            <div class="field-group" style="margin-bottom:0">
+              <label class="field-label">כך אדע שהצלחתי:</label>
+              <input type="text" id="t10_st2_measure" placeholder="אינדיקטור הצלחה קונקרטי">
+            </div>
+          </div>
+        </div>
+
+        <div class="station-card">
+          <div class="station-header">
+            <div class="station-num-badge">3</div>
+            תחנה שלישית — פיתוח לטווח הרחוק
+          </div>
+          <div class="station-body">
+            <div class="field-group">
+              <label class="field-label">הכישור שאפתח:</label>
+              <input type="text" id="t10_st3_skill" placeholder="כישור שלישי לפיתוח">
+            </div>
+            <div class="field-group">
+              <label class="field-label">איך אני מתכנן/ת לפתח אותו:</label>
+              <textarea class="sm" id="t10_st3_how" placeholder="מה הדרך שבחרת?"></textarea>
+            </div>
+            <div class="two-col">
+              <div class="field-group">
+                <label class="field-label">יעד — רמה שארצה להגיע:</label>
+                <input type="text" id="t10_st3_target" placeholder="למשל: מ-2 ל-5">
+              </div>
+              <div class="field-group">
+                <label class="field-label">תאריך יעד:</label>
+                <input type="date" id="t10_st3_date">
+              </div>
+            </div>
+            <div class="field-group" style="margin-bottom:0">
+              <label class="field-label">כך אדע שהצלחתי:</label>
+              <input type="text" id="t10_st3_measure" placeholder="אינדיקטור הצלחה קונקרטי">
+            </div>
+          </div>
+        </div>
+
+      </div><!-- /stations-wrap -->
+
+      <!-- SECTION 4: CONVERSATION PREP -->
+      <div class="section-divider" style="border-color:var(--teal-light);color:var(--teal);margin-top:24px">שלב ד׳ — מה אביא לשיחה: נקודות לדיון עם המנהל/ת</div>
+      <div class="field-group">
+        <label class="field-label">הנקודות המרכזיות שארצה להעלות עם המנהל/ת שלי:</label>
+        <textarea class="md" id="t10_conv_points" placeholder="על אילו כישורים אבקש תמיכה / חשיפה / משאבים? מה ארצה שהמנהל/ת יקח/תקח חלק בו?"></textarea>
+      </div>
+      <div class="field-group">
+        <label class="field-label">שאלות שאשאל את המנהל/ת שלי:</label>
+        <textarea class="sm" id="t10_conv_questions" placeholder="מה הארגון מצפה שאפתח? על אילו צרכים ארגוניים אני יכול/ה לענות? מה המנהל/ת רואה כפער העיקרי שלי?"></textarea>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+</main><!-- /main -->
+
+<!-- NAVIGATION FOOTER -->
+<div class="nav-footer">
+  <button class="nav-btn nav-btn-next" id="btn-next" onclick="navigate(1)">הבא ←</button>
+  <div class="save-indicator" id="save-indicator">
+    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 6L9 17l-5-5"/></svg>
+    נשמר
+  </div>
+  <button class="nav-btn nav-btn-prev" id="btn-prev" onclick="navigate(-1)" disabled>→ הקודם</button>
+</div>
+
+</div><!-- /app-shell -->
+
+<script>
+// ── STATE ──────────────────────────────────────────────────────────────────────
+const TOTAL = 10;
+let current = 1;
+const STORAGE_KEY = 'toolkit_4intersections';
+let data = {};
+let saveTimer = null;
+
+// ── INIT ───────────────────────────────────────────────────────────────────────
+function init() {
+  loadData();
+  restoreAll();
+  updateNav();
+  updateProgress();
+  bindInputs();
+  bindRadios();
+  bindValueChips();
+}
+
+// ── NAVIGATION ─────────────────────────────────────────────────────────────────
+function goTo(n) {
+  document.getElementById('tool-' + current).classList.remove('active');
+  document.querySelector('[data-tool="' + current + '"]').classList.remove('active');
+  current = n;
+  document.getElementById('tool-' + current).classList.add('active');
+  document.querySelector('[data-tool="' + current + '"]').classList.add('active');
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+  updateNav();
+}
+
+function navigate(dir) { goTo(Math.max(1, Math.min(TOTAL, current + dir))); }
+
+function updateNav() {
+  document.getElementById('btn-prev').disabled = current === 1;
+  document.getElementById('btn-next').disabled = current === TOTAL;
+  document.getElementById('btn-next').textContent = current === TOTAL ? '✓ סיום' : 'הבא ←';
+}
+
+// ── SAVE / LOAD ────────────────────────────────────────────────────────────────
+function saveData() {
+  data['user_name'] = document.getElementById('user-name-input').value;
+  data['t4_sum_what'] = document.getElementById('t4_sum_what').innerText;
+  data['t4_sum_when'] = document.getElementById('t4_sum_when').innerText;
+  data['t4_sum_why']  = document.getElementById('t4_sum_why').innerText;
+  data['t6_role']    = document.getElementById('t6_role').innerText;
+  data['t6_strength']= document.getElementById('t6_strength').innerText;
+  data['t6_need']    = document.getElementById('t6_need').innerText;
+  data['t6_impact']  = document.getElementById('t6_impact').innerText;
+  // values chips
+  const selected = Array.from(document.querySelectorAll('.value-chip.selected')).map(c => c.dataset.val);
+  data['t2_values'] = JSON.stringify(selected);
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+  flashSaved();
+  updateProgress();
+}
+
+function loadData() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    data = raw ? JSON.parse(raw) : {};
+  } catch(e) { data = {}; }
+}
+
+function restoreAll() {
+  // text inputs / textareas
+  document.querySelectorAll('textarea, input[type="text"], input[type="date"]').forEach(el => {
+    if (el.id && data[el.id] !== undefined) el.value = data[el.id];
+  });
+  // selects
+  document.querySelectorAll('select').forEach(el => {
+    if (el.id && data[el.id] !== undefined) el.value = data[el.id];
+  });
+  // contenteditable
+  ['t4_sum_what','t4_sum_when','t4_sum_why','t6_role','t6_strength','t6_need','t6_impact'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el && data[id]) el.innerText = data[id];
+  });
+  // name
+  if (data['user_name']) document.getElementById('user-name-input').value = data['user_name'];
+  // radios
+  Object.keys(data).forEach(k => {
+    if (k.startsWith('radio_')) {
+      const group = k.replace('radio_','');
+      const val = data[k];
+      document.querySelectorAll('[data-group="'+group+'"]').forEach(el => {
+        el.classList.toggle('selected', el.dataset.val === val);
+      });
+    }
+  });
+  // values chips
+  if (data['t2_values']) {
+    try {
+      const vals = JSON.parse(data['t2_values']);
+      document.querySelectorAll('.value-chip').forEach(c => {
+        c.classList.toggle('selected', vals.includes(c.dataset.val));
+      });
+    } catch(e) {}
+  }
+  // gap bars (tool 10)
+  updateGapBars();
+}
+
+function flashSaved() {
+  const el = document.getElementById('save-indicator');
+  el.classList.add('visible');
+  clearTimeout(saveTimer);
+  saveTimer = setTimeout(() => el.classList.remove('visible'), 1800);
+}
+
+// ── BIND INPUTS ────────────────────────────────────────────────────────────────
+function bindInputs() {
+  document.querySelectorAll('textarea, input[type="text"], input[type="date"], select').forEach(el => {
+    el.addEventListener('input', () => { data[el.id] = el.value; scheduleSave(); });
+  });
+  document.getElementById('user-name-input').addEventListener('input', scheduleSave);
+  document.querySelectorAll('[contenteditable="true"]').forEach(el => {
+    el.addEventListener('input', scheduleSave);
+  });
+}
+
+let saveScheduled = false;
+function scheduleSave() {
+  if (!saveScheduled) {
+    saveScheduled = true;
+    setTimeout(() => { saveData(); saveScheduled = false; }, 600);
+  }
+}
+
+// ── RADIO CIRCLES ──────────────────────────────────────────────────────────────
+function bindRadios() {
+  document.querySelectorAll('.radio-circle, .rating-dot').forEach(el => {
+    el.addEventListener('click', () => {
+      const group = el.dataset.group;
+      const val = el.dataset.val;
+      document.querySelectorAll('[data-group="'+group+'"]').forEach(r => r.classList.remove('selected'));
+      el.classList.add('selected');
+      data['radio_'+group] = val;
+      scheduleSave();
+      if (group.startsWith('t10_s')) updateGapBars();
+    });
+  });
+}
+
+// ── SKILLS GAP BARS ────────────────────────────────────────────────────────────
+function updateGapBars() {
+  for (let i = 1; i <= 6; i++) {
+    const cur  = parseInt(data['radio_t10_s'+i+'_cur']  || '0');
+    const need = parseInt(data['radio_t10_s'+i+'_need'] || '0');
+    const fillEl = document.getElementById('gap-fill-'+i);
+    const needEl = document.getElementById('gap-need-'+i);
+    const tagEl  = document.getElementById('gap-tag-'+i);
+    if (!fillEl) continue;
+    if (needEl) needEl.style.width = need > 0 ? (need / 5 * 100) + '%' : '0%';
+    fillEl.style.width = cur > 0 ? (cur / 5 * 100) + '%' : '0%';
+    if (cur === 0 && need === 0) {
+      fillEl.style.background = 'var(--purple)';
+      if (tagEl) { tagEl.className = 'gap-tag empty'; tagEl.textContent = '—'; }
+    } else if (need === 0) {
+      fillEl.style.background = 'var(--purple)';
+      if (tagEl) { tagEl.className = 'gap-tag empty'; tagEl.textContent = 'הגדר/י רמה נדרשת'; }
+    } else if (cur >= need) {
+      fillEl.style.background = '#2ea86b';
+      if (tagEl) { tagEl.className = 'gap-tag ok'; tagEl.textContent = '✓ עמדת ביעד'; }
+    } else {
+      const gap = need - cur;
+      fillEl.style.background = 'var(--purple)';
+      if (tagEl) { tagEl.className = 'gap-tag gap'; tagEl.textContent = 'פער: ' + gap + ' רמות'; }
+    }
+  }
+}
+
+// ── VALUE CHIPS ────────────────────────────────────────────────────────────────
+function bindValueChips() {
+  document.querySelectorAll('.value-chip').forEach(chip => {
+    chip.addEventListener('click', () => {
+      const max = 5;
+      const selected = document.querySelectorAll('.value-chip.selected').length;
+      if (!chip.classList.contains('selected') && selected >= max) return;
+      chip.classList.toggle('selected');
+      scheduleSave();
+    });
+  });
+}
+
+// ── PROGRESS ───────────────────────────────────────────────────────────────────
+function updateProgress() {
+  const keys = [
+    ['t1_role','t1_achievement'],
+    ['t2_m1a','t2_str_self'],
+    ['t3_vision'],
+    ['t4_what','t4_why'],
+    ['t5_o1a'],
+    ['t6_final'],
+    ['t7_open','t7_ask'],
+    ['t8_w1a'],
+    ['t9_committed'],
+    ['t10_target_role','t10_s1_name'],
+  ];
+  let done = 0;
+  keys.forEach((toolKeys, i) => {
+    const filled = toolKeys.some(k => (data[k] || '').trim().length > 3);
+    if (filled) {
+      done++;
+      document.querySelector('[data-tool="'+(i+1)+'"]').classList.add('done');
+    } else {
+      document.querySelector('[data-tool="'+(i+1)+'"]').classList.remove('done');
+    }
+  });
+  const pct = Math.round((done / TOTAL) * 100);
+  document.getElementById('progress-fill').style.width = pct + '%';
+  document.getElementById('progress-label').textContent = done + ' מתוך ' + TOTAL + ' כלים הושלמו';
+}
+
+// ── START ──────────────�
